@@ -44,8 +44,8 @@ public class GameManager : MonoBehaviour
 
 	void Start()
     {
-
-       
+        QualitySettings.vSyncCount = 1;
+        Application.targetFrameRate = 60;
     }
 
     // Update is called once per frame
@@ -72,20 +72,22 @@ public class GameManager : MonoBehaviour
 		}
 		if (character)
 		{
-            if (character.Movement.frictionMode == true && character.Movement.gravityMode == false)
-            {
-                background.color = frictionModeColor;
-            }
-            else if (character.Movement.frictionMode == false && character.Movement.gravityMode == true)
-            {
-                background.color = gravityModeColor;
-            }
-            else
-            {
-                background.color = defaultColor;
-            }
+			switch (character.Movement.mode)
+			{
+				case CharacterController.MovementMode.Normal:
+                    background.color = defaultColor;
+                    break;
+				case CharacterController.MovementMode.NoGravity:
+                    background.color = gravityModeColor;
+                    break;
+				case CharacterController.MovementMode.NoFriction:
+                    background.color = frictionModeColor;
+                    break;
+				default:
+					break;
+			}
 
-			if (character.IsDead)
+			if (state != GameState.Dead && character.IsDead)
 			{
                 CharacterDied();
 			}
@@ -107,7 +109,7 @@ public class GameManager : MonoBehaviour
 
     public void CompleteLevel()
 	{
-        Debug.Log("level completed");
+        
         state = GameState.LevelCompleted;
         uiManager.CompleteLevel();
         
@@ -115,7 +117,7 @@ public class GameManager : MonoBehaviour
 
     public void CharacterDied()
 	{
-        Debug.Log("Character died");
+        
         state = GameState.Dead;
         uiManager.CharacterDied();
     }
