@@ -22,6 +22,12 @@ public class CharacterController : MonoBehaviour
 		get { return velocity; }
 	}
 
+	public float VelocityUp
+	{
+		get { return velocity.y; }
+		set { velocity.y = value; }
+	}
+
 	[SerializeField] float currentAirVelocityLimit;
 	public enum MovementMode
 	{
@@ -44,8 +50,8 @@ public class CharacterController : MonoBehaviour
 	[SerializeField] float frictionModeAcceleration;
 	[SerializeField] float frictionModeFriction;
 
-	
 
+	public float FrictionMultiplier { get; set; } = 1;
 	
 	BoxCollider2D boxCollider;
 	SpriteRenderer spriteRenderer;
@@ -58,8 +64,12 @@ public class CharacterController : MonoBehaviour
 		spriteRenderer = GetComponent<SpriteRenderer>();
 	}
 
-    
-    void Update()
+	private void Start()
+	{
+		currentAirVelocityLimit = minAirVelocityLimit;
+	}
+
+	void Update()
     {
 		ModeInput();
 		CheckGrounded();
@@ -121,6 +131,9 @@ public class CharacterController : MonoBehaviour
 			default:
 				break;
 		}
+		friction *= FrictionMultiplier;
+
+		FrictionMultiplier = 1;
 
 
 		velocity.y -= gravity * Time.deltaTime;
@@ -141,6 +154,8 @@ public class CharacterController : MonoBehaviour
 		
 
 		transform.Translate(velocity * Time.deltaTime);
+
+		
 	}
 
 	void CollisionDetection()
@@ -162,22 +177,29 @@ public class CharacterController : MonoBehaviour
 			if (tilemap)
 			{
 				Grid grid = tilemap.layoutGrid;
-				Vector3Int pos = grid.WorldToCell(colliderDistance.pointB);
-				CustomTile tile = tilemap.GetTile(pos) as CustomTile;
-				if (tile)
+
+				Vector3Int pos = grid.WorldToCell(colliderDistance.pointB - colliderDistance.normal * 0.5f);
+				TileBase tile = tilemap.GetTile(pos);
+
+				if (tile == null)
 				{
-
-					tile.OnCollision(character);
+					Debug.LogWarning("no tile");
 				}
+
+				else if (tile as CustomTile)
+				{
+					CustomTile customTile = tile as CustomTile;
+					customTile.OnCollision(character);
+				}
+
 			}
-
-
 
 			if (colliderDistance.isOverlapped == true)
 			{
-				transform.Translate(colliderDistance.pointA - colliderDistance.pointB);
+				
+				transform.Translate( -1 * colliderDistance.normal * colliderDistance.distance);
 
-				if (Vector2.Angle(colliderDistance.normal, Vector2.up) < 90 && velocity.y < 0)
+				if (Vector2.Angle(colliderDistance.normal, Vector2.up) < 90 && velocity.y <= 0)
 				{
 					character.Health.HitFloorDamage(Mathf.Abs(velocity.y));
 					velocity.y = 0;
@@ -194,25 +216,13 @@ public class CharacterController : MonoBehaviour
 					character.Health.HitWallDamage(Mathf.Abs(velocity.x));
 					velocity.x = 0;
 				}
+
+				
 			}
 
 
 
 		}
-	}
-
-	public void AddVelocityUp(float addedVelocity)
-	{
-		velocity.y += addedVelocity;
-	}
-
-	Vector2 PixelPerfectClamp(Vector2 move, float pixelsPerUnit)
-	{
-		Vector2 vectorInPixels = new Vector2(
-			Mathf.RoundToInt(move.x * pixelsPerUnit),
-			Mathf.RoundToInt(move.y * pixelsPerUnit));
-		return vectorInPixels / pixelsPerUnit;
-		
 	}
 
 

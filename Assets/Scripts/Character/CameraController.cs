@@ -38,7 +38,7 @@ public class CameraController : MonoBehaviour
         if (character)
         {
 
-            if (Vector2.Distance(transform.position, character.position) > offset)
+            //if (Vector2.Distance(transform.position, character.position) > offset)
             {
 
                 Vector2 newPosition = Vector2.SmoothDamp(transform.position, character.position, ref smoothVelocity, smoothTime);

@@ -2,15 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
+using Cinemachine;
 
 public class GameManager : MonoBehaviour
 {
 
     [SerializeField] GameObject characterPrefab;
     [SerializeField] Transform startingPoint;
-    [SerializeField] CameraController cameraController;
-    [SerializeField] UIManager uiManager;
 
+    [SerializeField] UIManager uiManager;
+    [SerializeField] CinemachineVirtualCamera virtualCamera;
     [SerializeField] Color gravityModeColor;
     [SerializeField] Color frictionModeColor;
     Color defaultColor;
@@ -18,6 +19,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] SpriteRenderer background;
 
     Character character;
+    
 
     public enum GameState
 	{
@@ -31,21 +33,24 @@ public class GameManager : MonoBehaviour
 
 	private void Awake()
 	{
-        if (cameraController == null)
-            cameraController = FindObjectOfType<CameraController>();
+        if (virtualCamera == null)
+            virtualCamera = FindObjectOfType<CinemachineVirtualCamera>();
         if (uiManager == null)
             uiManager = FindObjectOfType<UIManager>();
         if (background == null)
             background = GameObject.Find("Background").GetComponent<SpriteRenderer>();
 
+        character = FindObjectOfType<Character>();
+
         defaultColor = background.color;
-        state = GameState.Starting;
+        state = GameState.Playing;
 	}
 
 	void Start()
     {
         QualitySettings.vSyncCount = 1;
         Application.targetFrameRate = 60;
+        StartLevel();
     }
 
     // Update is called once per frame
@@ -98,10 +103,14 @@ public class GameManager : MonoBehaviour
 
     void StartLevel()
 	{
-        GameObject _character = Instantiate(characterPrefab);
-        _character.transform.position = startingPoint.position;
-        character = _character.GetComponent<Character>();
-        cameraController.AssignCharacter(character.transform);
+        if(character == null)
+		{
+            GameObject _character = Instantiate(characterPrefab);
+            _character.transform.position = startingPoint.position;
+            character = _character.GetComponent<Character>();
+        }
+        
+        
         state = GameState.Playing;
         uiManager.StartLevel();
     }
