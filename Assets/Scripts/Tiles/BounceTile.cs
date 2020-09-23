@@ -10,13 +10,14 @@ public class BounceTile : CustomTile
 
 	public override void OnCollision(Character character)
 	{
-		Debug.Log(Mathf.Abs(character.Movement.VelocityUp).ToString("F2"));
+		
 		//ColliderDistance2D colliderDistance = hit.Distance(boxCollider);
 		if( Mathf.Abs(character.Movement.VelocityUp) > 10)
 		{
 			character.Movement.VelocityUp = -1 * (character.Movement.Velocity.y * velocityReflected) + addedVelocity;
 		}
+
 		
-		
+
 	}
 }

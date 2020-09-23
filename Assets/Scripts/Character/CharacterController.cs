@@ -172,14 +172,18 @@ public class CharacterController : MonoBehaviour
 				continue;
 
 			ColliderDistance2D colliderDistance = hit.Distance(boxCollider);
+			//pointA - tile
+			//pointB - player
+
 
 			Tilemap tilemap = hit.GetComponentInChildren<Tilemap>();
 			if (tilemap)
 			{
 				Grid grid = tilemap.layoutGrid;
 
-				Vector3Int pos = grid.WorldToCell(colliderDistance.pointB - colliderDistance.normal * 0.5f);
+				Vector3Int pos = grid.WorldToCell(colliderDistance.pointA - colliderDistance.normal * 0.5f);
 				TileBase tile = tilemap.GetTile(pos);
+
 
 				if (tile == null)
 				{
@@ -192,14 +196,17 @@ public class CharacterController : MonoBehaviour
 					customTile.OnCollision(character);
 				}
 
+
 			}
+			else Debug.LogWarning("No tilemap");
+
 
 			if (colliderDistance.isOverlapped == true)
 			{
 				
 				transform.Translate( -1 * colliderDistance.normal * colliderDistance.distance);
 
-				if (Vector2.Angle(colliderDistance.normal, Vector2.up) < 90 && velocity.y <= 0)
+				if (Vector2.Angle(colliderDistance.normal, Vector2.up) < 90 && velocity.y < 0)
 				{
 					character.Health.HitFloorDamage(Mathf.Abs(velocity.y));
 					velocity.y = 0;
