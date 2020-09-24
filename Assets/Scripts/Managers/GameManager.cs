@@ -3,14 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using Cinemachine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
 
+    [SerializeField] GameObject UIPrefab;
+
     [SerializeField] GameObject characterPrefab;
     [SerializeField] Transform startingPoint;
 
-    [SerializeField] UIManager uiManager;
+    UIManager uiManager;
     [SerializeField] CinemachineVirtualCamera virtualCamera;
     [SerializeField] Color gravityModeColor;
     [SerializeField] Color frictionModeColor;
@@ -19,7 +22,9 @@ public class GameManager : MonoBehaviour
     [SerializeField] SpriteRenderer background;
 
     Character character;
-    
+
+    int levelNumber;
+
 
     public enum GameState
 	{
@@ -33,23 +38,35 @@ public class GameManager : MonoBehaviour
 
 	private void Awake()
 	{
+        GameObject ui = Instantiate(UIPrefab);
+        uiManager = ui.GetComponent<UIManager>();
+
         if (virtualCamera == null)
             virtualCamera = FindObjectOfType<CinemachineVirtualCamera>();
-        if (uiManager == null)
-            uiManager = FindObjectOfType<UIManager>();
+
         if (background == null)
             background = GameObject.Find("Background").GetComponent<SpriteRenderer>();
+
+        if (startingPoint == null)
+            startingPoint = GameObject.Find("Starting Point").transform;
+
 
         character = FindObjectOfType<Character>();
 
         defaultColor = background.color;
         state = GameState.Playing;
+
+        levelNumber = int.Parse(SceneManager.GetActiveScene().name.Split(' ')[1]);
+        Debug.Log("Current Level number: " + levelNumber);
 	}
 
 	void Start()
     {
         QualitySettings.vSyncCount = 1;
         Application.targetFrameRate = 60;
+
+        virtualCamera.Follow = character.transform;
+
         StartLevel();
     }
 
@@ -133,7 +150,8 @@ public class GameManager : MonoBehaviour
 
     void RestartLevel()
 	{
-        character.GetComponent<CharacterHealth>().RestoreHealth(100);
+        character.Movement.Restart();
+        character.Health.RestoreHealth(100);
         character.transform.position = startingPoint.position;
         state = GameState.Playing;
         uiManager.StartLevel();
@@ -141,6 +159,6 @@ public class GameManager : MonoBehaviour
 
     void NextLevel()
 	{
-
+        SceneLoader.LoadLevel(levelNumber + 1);
 	}
 }

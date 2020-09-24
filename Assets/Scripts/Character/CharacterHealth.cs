@@ -54,7 +54,8 @@ public class CharacterHealth : MonoBehaviour
 	// Update is called once per frame
 	void Update()
     {
-        timeSinceDamage += Time.deltaTime;
+        if(IsDead == false)
+            timeSinceDamage += Time.deltaTime;
 
         if(timeSinceDamage > regenerationOffset && currentHealth < maxHealth)
 		{

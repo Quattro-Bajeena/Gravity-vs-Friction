@@ -7,6 +7,7 @@ public class Character : MonoBehaviour
 
     public CharacterController Movement { get; private set; }
     public CharacterHealth Health { get; private set; }
+    //public CharacterAnimations Animations { get; private set; }
 
     public bool IsDead
 	{
@@ -17,6 +18,7 @@ public class Character : MonoBehaviour
     {
         Movement = GetComponent<CharacterController>();
         Health = GetComponent<CharacterHealth>();
+        //Animations = GetComponent<CharacterAnimations>();
     }
 
 

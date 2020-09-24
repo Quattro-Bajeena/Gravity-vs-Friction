@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 public class CharacterController : MonoBehaviour
 {
+	
+
 	Character character;
 
 	[SerializeField] float jumpVelocity;
@@ -71,16 +73,28 @@ public class CharacterController : MonoBehaviour
 
 	void Update()
     {
-		ModeInput();
-		CheckGrounded();
-		Movement();
+		bool jump = false;
+		float moveInput = 0f;
+		mode = MovementMode.Normal;
+
+		if (character.IsDead == false)
+		{
+			jump = Input.GetButtonDown("Jump");
+			moveInput = Input.GetAxisRaw("Horizontal");
+			ModeInput();
+		}
+
+		CheckGrounded(jump);
+		Movement(moveInput);
 		CollisionDetection();
+
+		//character.Animations.SetVelocity(velocity);
 	}
 
 	void ModeInput()
 	{
-		mode = MovementMode.Normal;
 
+		mode = MovementMode.Normal;
 		if (Input.GetMouseButton(0))
 			mode = MovementMode.NoFriction;
 		else if (Input.GetMouseButton(1))
@@ -88,7 +102,7 @@ public class CharacterController : MonoBehaviour
 
 	}
 
-	void CheckGrounded()
+	void CheckGrounded(bool jump)
 	{
 		if (grounded == true)
 		{
@@ -105,9 +119,10 @@ public class CharacterController : MonoBehaviour
 		}
 	}
 
-	void Movement()
+	void Movement(float moveInput)
 	{
-		float moveInput = Input.GetAxisRaw("Horizontal");
+		
+		
 
 
 		float acceleration = grounded ? defaultWalkAcceleration : defaultAirAcceleration;
@@ -135,7 +150,7 @@ public class CharacterController : MonoBehaviour
 
 		FrictionMultiplier = 1;
 
-
+		
 		velocity.y -= gravity * Time.deltaTime;
 
 		velocity.x += moveInput * acceleration * Time.deltaTime;
@@ -151,8 +166,8 @@ public class CharacterController : MonoBehaviour
 		velocity.x = Mathf.Clamp(velocity.x, -velocityLimit.x, velocityLimit.x);
 		velocity.y = Mathf.Clamp(velocity.y, -velocityLimit.y, velocityLimit.y);
 
-		
 
+		
 		transform.Translate(velocity * Time.deltaTime);
 
 		
@@ -165,25 +180,21 @@ public class CharacterController : MonoBehaviour
 
 		foreach (Collider2D hit in hits)
 		{
-			if (hit.isTrigger)
-				continue;
-
 			if (hit == boxCollider)
 				continue;
 
+
+			Tilemap tilemap = hit.GetComponentInChildren<Tilemap>();
 			ColliderDistance2D colliderDistance = hit.Distance(boxCollider);
 			//pointA - tile
 			//pointB - player
 
-
-			Tilemap tilemap = hit.GetComponentInChildren<Tilemap>();
 			if (tilemap)
 			{
 				Grid grid = tilemap.layoutGrid;
 
 				Vector3Int pos = grid.WorldToCell(colliderDistance.pointA - colliderDistance.normal * 0.5f);
 				TileBase tile = tilemap.GetTile(pos);
-
 
 				if (tile == null)
 				{
@@ -195,11 +206,11 @@ public class CharacterController : MonoBehaviour
 					CustomTile customTile = tile as CustomTile;
 					customTile.OnCollision(character);
 				}
-
-
 			}
-			else Debug.LogWarning("No tilemap");
+			else Debug.LogWarning("It's no tilemap");
 
+			if (hit.isTrigger)
+				continue;
 
 			if (colliderDistance.isOverlapped == true)
 			{
@@ -230,6 +241,12 @@ public class CharacterController : MonoBehaviour
 
 
 		}
+	}
+
+	public void Restart()
+	{
+		velocity = Vector2.zero;
+		grounded = false;
 	}
 
 
