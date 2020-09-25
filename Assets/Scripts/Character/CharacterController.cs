@@ -108,7 +108,7 @@ public class CharacterController : MonoBehaviour
 		{
 			currentAirVelocityLimit = float.MaxValue;
 			velocity.y = 0;
-			if (Input.GetButtonDown("Jump"))
+			if (jump)
 			{
 				//velocity.y = Mathf.Sqrt(2 * jumpHeight * Mathf.Abs(gravity));
 				velocity.y = jumpVelocity;
@@ -178,12 +178,14 @@ public class CharacterController : MonoBehaviour
 		Collider2D[] hits = Physics2D.OverlapBoxAll(transform.position, boxCollider.size, 0f);
 		grounded = false;
 
+		
+
 		foreach (Collider2D hit in hits)
 		{
 			if (hit == boxCollider)
 				continue;
 
-
+			
 			Tilemap tilemap = hit.GetComponentInChildren<Tilemap>();
 			ColliderDistance2D colliderDistance = hit.Distance(boxCollider);
 			//pointA - tile
@@ -204,7 +206,7 @@ public class CharacterController : MonoBehaviour
 				else if (tile as CustomTile)
 				{
 					CustomTile customTile = tile as CustomTile;
-					customTile.OnCollision(character);
+					customTile.OnCollision(character, tilemap, pos);
 				}
 			}
 			else Debug.LogWarning("It's no tilemap");
@@ -222,6 +224,7 @@ public class CharacterController : MonoBehaviour
 					character.Health.HitFloorDamage(Mathf.Abs(velocity.y));
 					velocity.y = 0;
 					grounded = true;
+					Debug.Log("hit floor");
 
 				}
 				else if (Vector2.Angle(colliderDistance.normal, Vector2.up) > 90 && velocity.y > 0)

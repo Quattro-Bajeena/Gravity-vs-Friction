@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 3960178017540358955}
   - component: {fileID: 1423314550906199668}
   - component: {fileID: 1423314550906199670}
+  - component: {fileID: 2578936117774851603}
   - component: {fileID: 1423314550906199671}
   - component: {fileID: 551020056852673037}
   m_Layer: 0
@@ -117,7 +118,7 @@ MonoBehaviour:
   defaultFriction: 6
   defaultGravity: 35
   minAirVelocityLimit: 3
-  velocityLimit: {x: 100, y: 70}
+  velocityLimit: {x: 100, y: 100}
   grounded: 0
   velocity: {x: 0, y: 0}
   currentAirVelocityLimit: 0
@@ -143,10 +144,23 @@ MonoBehaviour:
   _currentHealth: 0
   regenerationOffset: 2
   regenerationSpeed: 25
-  wallHitVelocityThreshold: 10
+  wallHitVelocityThreshold: 16
   floorHitVelocityThreshold: 25
   timeSinceDamage: 0
   deadColor: {r: 0.8207547, g: 0.32501507, b: 0.0663683, a: 1}
+--- !u!114 &2578936117774851603
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1423314550906199659}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fda531f92f69e9f4084213379ff8f616, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _score: 0
 --- !u!61 &1423314550906199671
 BoxCollider2D:
   m_ObjectHideFlags: 0

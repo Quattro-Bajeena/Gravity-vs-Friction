@@ -74,7 +74,7 @@ public class CharacterHealth : MonoBehaviour
         if (velocity <= floorHitVelocityThreshold)
             return;
 
-        
+        Debug.Log(velocity);
         currentHealth -= velocity;
     }
 

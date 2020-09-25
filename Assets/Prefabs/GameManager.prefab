@@ -50,3 +50,4 @@ MonoBehaviour:
   gravityModeColor: {r: 0.4556273, g: 0.5593106, b: 0.5849056, a: 1}
   frictionModeColor: {r: 0.5943396, g: 0.5762502, b: 0.42933425, a: 1}
   background: {fileID: 0}
+  targetTime: 60

@@ -10,8 +10,8 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] GameObject UIPrefab;
 
-    [SerializeField] GameObject characterPrefab;
     [SerializeField] Transform startingPoint;
+    
 
     UIManager uiManager;
     [SerializeField] CinemachineVirtualCamera virtualCamera;
@@ -20,10 +20,26 @@ public class GameManager : MonoBehaviour
     Color defaultColor;
 
     [SerializeField] SpriteRenderer background;
+    [SerializeField] float targetTime;
+
+    Transform _lastCheckpoint;
+    Transform LastCheckpoint
+	{
+		get { return _lastCheckpoint; }
+		set
+		{
+            _lastCheckpoint = value;
+            visitedCheckpoints.Add(value);
+		}
+	}
+    List<Transform> visitedCheckpoints = new List<Transform>();
 
     Character character;
 
     int levelNumber;
+    float timer;
+    bool timerActive = false;
+    
 
 
     public enum GameState
@@ -54,18 +70,22 @@ public class GameManager : MonoBehaviour
         character = FindObjectOfType<Character>();
 
         defaultColor = background.color;
-        state = GameState.Playing;
+        
 
         levelNumber = int.Parse(SceneManager.GetActiveScene().name.Split(' ')[1]);
         Debug.Log("Current Level number: " + levelNumber);
+
+        timer = targetTime;
+
+        LastCheckpoint = startingPoint;
 	}
 
 	void Start()
     {
         QualitySettings.vSyncCount = 1;
-        Application.targetFrameRate = 60;
+        //Application.targetFrameRate = 60;
 
-        virtualCamera.Follow = character.transform;
+        
 
         StartLevel();
     }
@@ -73,6 +93,14 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(timer > 0 && timerActive == true)
+            timer -= Time.deltaTime;
+        if(timer <= 0)
+            TimeEnded();
+
+        uiManager.UpdateTimer(timer);
+
+
 		switch (state)
 		{
 			case GameState.Starting:
@@ -120,16 +148,18 @@ public class GameManager : MonoBehaviour
 
     void StartLevel()
 	{
-        if(character == null)
-		{
-            GameObject _character = Instantiate(characterPrefab);
-            _character.transform.position = startingPoint.position;
-            character = _character.GetComponent<Character>();
-        }
-        
-        
+        Time.timeScale = 0;
+        StartCoroutine(StartLevelCoroutine());
+    }
+
+    IEnumerator StartLevelCoroutine()
+	{
+        yield return new WaitForSecondsRealtime(1);
         state = GameState.Playing;
+        virtualCamera.Follow = character.transform;
+        timerActive = true;
         uiManager.StartLevel();
+        Time.timeScale = 1;
     }
 
 
@@ -137,6 +167,7 @@ public class GameManager : MonoBehaviour
 	{
         
         state = GameState.LevelCompleted;
+        timerActive = false;
         uiManager.CompleteLevel();
         
 	}
@@ -152,7 +183,7 @@ public class GameManager : MonoBehaviour
 	{
         character.Movement.Restart();
         character.Health.RestoreHealth(100);
-        character.transform.position = startingPoint.position;
+        character.transform.position = LastCheckpoint.position;
         state = GameState.Playing;
         uiManager.StartLevel();
 	}
@@ -160,5 +191,22 @@ public class GameManager : MonoBehaviour
     void NextLevel()
 	{
         SceneLoader.LoadLevel(levelNumber + 1);
+	}
+
+    void TimeEnded()
+	{
+        timer = 0;
+        uiManager.TimeEnded();
+
+	}
+
+    public void CheckpointReached(Transform newCheckpoint)
+	{
+        if(visitedCheckpoints.Contains(newCheckpoint) == false )
+		{
+            LastCheckpoint = newCheckpoint;
+            uiManager.CheckpointReached();
+        }
+        
 	}
 }

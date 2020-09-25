@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 [CreateAssetMenu(fileName = "Bounce Tile", menuName = "Tiles/Bounce Tile")]
 public class BounceTile : CustomTile
@@ -8,7 +9,7 @@ public class BounceTile : CustomTile
 	[SerializeField] float addedVelocity;
 	[SerializeField] float velocityReflected; 
 
-	public override void OnCollision(Character character)
+	public override void OnCollision(Character character, Tilemap tilemap, Vector3Int tilePos)
 	{
 		
 		//ColliderDistance2D colliderDistance = hit.Distance(boxCollider);
